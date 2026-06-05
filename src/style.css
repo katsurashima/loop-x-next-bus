@@ -1,14 +1,15 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --card-bg: #faf9fc;
-  --border: #e5e4e7;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --soon: #d12d6b;
-  --soon-bg: rgba(209, 45, 107, 0.1);
-  --muted: #9a94a3;
+  /* Business-modern: slate neutrals with a confident blue accent. */
+  --text: #475569;
+  --text-h: #0f172a;
+  --bg: #ffffff;
+  --card-bg: #f8fafc;
+  --border: #e2e8f0;
+  --accent: #2563eb;
+  --accent-bg: rgba(37, 99, 235, 0.08);
+  --soon: #dc2626;
+  --soon-bg: rgba(220, 38, 38, 0.08);
+  --muted: #94a3b8;
 
   --sans: system-ui, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans JP',
     sans-serif;
@@ -24,16 +25,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --card-bg: #1f2028;
-    --border: #2e303a;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --soon: #ff7aa8;
-    --soon-bg: rgba(255, 122, 168, 0.15);
-    --muted: #6b7280;
+    --text: #94a3b8;
+    --text-h: #f1f5f9;
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --border: #334155;
+    --accent: #60a5fa;
+    --accent-bg: rgba(96, 165, 250, 0.14);
+    --soon: #f87171;
+    --soon-bg: rgba(248, 113, 113, 0.14);
+    --muted: #64748b;
   }
 }
 
