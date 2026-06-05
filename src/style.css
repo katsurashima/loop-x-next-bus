@@ -23,8 +23,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark palette: applied automatically (auto mode) or when forced via the
+   theme toggle (data-theme="dark"). data-theme="light" keeps the :root light. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --text: #94a3b8;
     --text-h: #f1f5f9;
     --bg: #0f172a;
@@ -38,12 +40,61 @@
   }
 }
 
+:root[data-theme='dark'] {
+  --text: #94a3b8;
+  --text-h: #f1f5f9;
+  --bg: #0f172a;
+  --card-bg: #1e293b;
+  --border: #334155;
+  --accent: #60a5fa;
+  --accent-bg: rgba(96, 165, 250, 0.14);
+  --soon: #f87171;
+  --soon-bg: rgba(248, 113, 113, 0.14);
+  --muted: #64748b;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card-bg);
+  color: var(--text-h);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 .app {

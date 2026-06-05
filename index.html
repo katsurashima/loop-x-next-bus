@@ -3,12 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="LOOP-X 無料シャトルバス（田町駅 ⇔ LOOP-X）の次のバスまでの待ち時間を表示します。" />
     <meta name="theme-color" content="#2563eb" />
     <title>LOOP-X シャトルバス 次のバス</title>
+    <script>
+      // Apply the stored theme before first paint to avoid a flash of the
+      // wrong color scheme. Mirrors the keys used by src/ui/theme.ts.
+      try {
+        var t = localStorage.getItem('loopx-theme')
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.dataset.theme = t
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="表示テーマ"></button>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
