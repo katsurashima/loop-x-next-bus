@@ -14,6 +14,6 @@ export interface SiteMeta {
 export const SITE: SiteMeta = {
   disclaimer:
     'このサイトは有志による非公式の時刻表ビューアーです。シダックスおよび LOOP-X とは関係ありません。',
-  // TODO: Google フォーム等の公開 URL を設定すると、フッターに連絡リンクが出る。
-  contactFormUrl: '',
+  // Google Form responder link (公開用). Setting this shows the footer link.
+  contactFormUrl: 'https://forms.gle/tbdG24kGuz2jqmGRA',
 }
