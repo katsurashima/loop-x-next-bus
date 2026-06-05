@@ -14,7 +14,7 @@ export default defineConfig({
       manifest: {
         name: 'LOOP-X 無料シャトルバス',
         short_name: 'LOOP-X バス',
-        description: '田町駅 ⇔ LOOP-X 無料シャトルバスの次のバスまでの待ち時間。',
+        description: '田町駅 ⇔ LOOP-X 無料シャトルバスの次の発車まで「あと何分」を表示。',
         lang: 'ja',
         dir: 'ltr',
         theme_color: '#2563eb',
