@@ -1,5 +1,6 @@
 import type { Departure } from '../core/nextBus.ts'
 import { directionStatus, type DirectionStatus } from '../core/schedule.ts'
+import { SITE } from '../data/site.ts'
 import type { Place, RouteDirection, Timetable } from '../data/timetable.ts'
 import { busIcon, placeIcon } from './icons.ts'
 
@@ -133,6 +134,10 @@ export function renderTimetable(now: Date, timetable: Timetable): string {
       <footer class="app-foot">
         <p>${escapeHtml(timetable.operator)} / ${escapeHtml(timetable.checkedOn)} 時点</p>
         <p class="note">表示はお使いの端末の時計に基づきます。実際の運行は<a href="${escapeHtml(timetable.sourceUrl)}" target="_blank" rel="noopener">事業者の最新案内</a>を確認してください。</p>
+        <p class="note">${escapeHtml(SITE.disclaimer)}</p>
+        ${SITE.contactFormUrl
+          ? `<p class="note"><a href="${escapeHtml(SITE.contactFormUrl)}" target="_blank" rel="noopener">ご意見・関係者の方のお問い合わせはこちら</a></p>`
+          : ''}
       </footer>
     </main>`
 }
