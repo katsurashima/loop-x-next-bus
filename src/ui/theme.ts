@@ -1,71 +1,75 @@
-// Manual theme override on top of the OS preference. State is one of:
-//   auto  — follow the device's prefers-color-scheme (default)
-//   light — force light
-//   dark  — force dark
-// Persisted in localStorage; applied via a data-theme attribute on <html>.
+// Manual light/dark toggle. First visit follows the OS preference; tapping the
+// button switches explicitly and persists the choice in localStorage.
+// A two-state toggle (no separate "auto") avoids landing on a theme that looks
+// identical to the previous step when the OS is already dark or light.
 
-export type Theme = 'auto' | 'light' | 'dark'
+export type Theme = 'light' | 'dark'
 
 const STORAGE_KEY = 'loopx-theme'
-const ORDER: readonly Theme[] = ['auto', 'light', 'dark']
 
 const LABELS: Record<Theme, string> = {
-  auto: 'テーマ: 自動（端末設定）',
-  light: 'テーマ: ライト',
-  dark: 'テーマ: ダーク',
+  light: 'テーマ: ライト（タップでダーク）',
+  dark: 'テーマ: ダーク（タップでライト）',
 }
 
 const ICONS: Record<Theme, string> = {
-  // Half-filled circle: "auto / adapts".
-  auto: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/></svg>`,
   // Sun.
   light: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`,
   // Moon.
   dark: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>`,
 }
 
-function readTheme(): Theme {
+function systemTheme(): Theme {
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  } catch {
+    return 'light'
+  }
+}
+
+function readStored(): Theme | null {
   try {
     const value = localStorage.getItem(STORAGE_KEY)
     if (value === 'light' || value === 'dark') return value
   } catch {
-    // localStorage unavailable (private mode etc.): fall back to auto.
+    // localStorage unavailable: treat as no stored preference.
   }
-  return 'auto'
+  return null
 }
 
 function storeTheme(theme: Theme): void {
   try {
-    if (theme === 'auto') localStorage.removeItem(STORAGE_KEY)
-    else localStorage.setItem(STORAGE_KEY, theme)
+    localStorage.setItem(STORAGE_KEY, theme)
   } catch {
     // Persistence is best-effort; the in-memory state still applies this session.
   }
 }
 
-/** Apply a theme to the document by toggling the data-theme attribute. */
+/** Force a theme by setting the data-theme attribute on <html>. */
 export function applyTheme(theme: Theme): void {
-  const root = document.documentElement
-  if (theme === 'auto') root.removeAttribute('data-theme')
-  else root.setAttribute('data-theme', theme)
+  document.documentElement.setAttribute('data-theme', theme)
 }
 
-/** Wire a button that cycles auto → light → dark and persists the choice. */
+/**
+ * Wire a button that toggles light ⇄ dark.
+ * Until the first tap, no attribute is forced so the page keeps following the
+ * OS preference live; the button still reflects the current effective theme.
+ */
 export function setupThemeToggle(button: HTMLButtonElement): void {
-  let theme = readTheme()
+  let theme: Theme = readStored() ?? systemTheme()
 
-  const sync = (): void => {
-    applyTheme(theme)
+  const render = (): void => {
     button.innerHTML = ICONS[theme]
     button.setAttribute('aria-label', LABELS[theme])
     button.setAttribute('title', LABELS[theme])
   }
 
-  sync()
+  render()
 
   button.addEventListener('click', () => {
-    theme = ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length]
+    theme = theme === 'dark' ? 'light' : 'dark'
     storeTheme(theme)
-    sync()
+    applyTheme(theme)
+    render()
   })
 }
