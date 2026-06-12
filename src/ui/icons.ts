@@ -24,3 +24,11 @@ export function placeIcon(icon: PlaceIcon): string {
 export function busIcon(): string {
   return BUS
 }
+
+// Bold right-pointing arrow shown in the middle of the journey strip.
+const ARROW = `<svg viewBox="0 0 36 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h27M22 5l8 7-8 7"/></svg>`
+
+/** SVG markup for the direction arrow (origin → destination). */
+export function arrowIcon(): string {
+  return ARROW
+}

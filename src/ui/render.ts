@@ -2,12 +2,20 @@ import type { Departure } from '../core/nextBus.ts'
 import { directionStatus, type DirectionStatus } from '../core/schedule.ts'
 import { SITE } from '../data/site.ts'
 import type { Place, RouteDirection, Timetable } from '../data/timetable.ts'
-import { busIcon, placeIcon } from './icons.ts'
+import { arrowIcon, busIcon, placeIcon } from './icons.ts'
 
 /** Below this many seconds the countdown turns urgent. */
 const SOON_THRESHOLD_SECONDS = 3 * 60
+/** Departures shown inline (次 / その次) before the expander. */
+const INLINE_FOLLOWING = 2
 
 const WEEKDAY_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
+
+/** Which direction tab is active and whether the full list is expanded. */
+export interface ViewState {
+  selectedId: string
+  showAll: boolean
+}
 
 /** Format whole seconds as a human countdown, e.g. "あと 3分20秒". */
 export function formatCountdown(secondsUntil: number): string {
@@ -40,28 +48,69 @@ const escapeHtml = (value: string): string =>
     }
   })
 
-const previewList = (departures: Departure[]): string => {
-  if (departures.length === 0) return ''
-  const items = departures
-    .map((d) => `<li>${escapeHtml(d.time)}</li>`)
+const tabBar = (timetable: Timetable, selectedId: string): string => {
+  const items = timetable.directions
+    .map((d) => {
+      const selected = d.id === selectedId
+      return `
+        <button class="tab" type="button" role="tab" data-direction-tab="${escapeHtml(d.id)}" data-tone="${d.tone}" aria-selected="${selected}">
+          <span class="tab-icon">${placeIcon(d.origin.icon)}</span>
+          <span>${escapeHtml(d.origin.name)}から乗る</span>
+        </button>`
+    })
     .join('')
-  return `<ul class="preview" aria-label="後続便">${items}</ul>`
+  return `<nav class="tabs" role="tablist">${items}</nav>`
 }
 
-const runningBody = (
+const journeyStrip = (origin: Place, destination: Place): string => `
+    <div class="journey" aria-hidden="true">
+      <span class="endpoint">
+        <span class="endpoint-icon">${placeIcon(origin.icon)}</span>
+        <span class="endpoint-name">${escapeHtml(origin.name)}</span>
+      </span>
+      <span class="track">
+        <span class="rail"></span>
+        <span class="arrow-mid">${arrowIcon()}</span>
+      </span>
+      <span class="endpoint">
+        <span class="endpoint-icon">${placeIcon(destination.icon)}</span>
+        <span class="endpoint-name">${escapeHtml(destination.name)}</span>
+      </span>
+    </div>`
+
+const runningCore = (
   status: Extract<DirectionStatus, { kind: 'running' }>,
 ): string => {
   const soon = status.secondsUntil <= SOON_THRESHOLD_SECONDS
-  const lastTag = status.isLastToday
-    ? '<span class="tag">本日最終</span>'
+  const lastTag = status.isLastToday ? '<span class="tag">本日最終</span>' : ''
+  const inline = status.following.slice(0, INLINE_FOLLOWING)
+  const followingLine = inline.length
+    ? `<p class="following">${inline
+        .map((d, i) => `${i === 0 ? '次' : 'その次'} ${escapeHtml(d.time)}`)
+        .join('　／　')}</p>`
+    : '<p class="following">本日これが最終便です</p>'
+  return `
+    <p class="next-label">次の出発 ${lastTag}</p>
+    <p class="next-time"><time datetime="${escapeHtml(status.departure.time)}">${escapeHtml(status.departure.time)}</time></p>
+    <p class="countdown${soon ? ' soon' : ''}">${escapeHtml(formatCountdown(status.secondsUntil))}</p>
+    ${followingLine}`
+}
+
+const expander = (
+  status: Extract<DirectionStatus, { kind: 'running' }>,
+  showAll: boolean,
+): string => {
+  if (status.following.length === 0) return ''
+  const list = showAll
+    ? `<ul class="all-list">${status.following
+        .map((d: Departure) => `<li>${escapeHtml(d.time)}</li>`)
+        .join('')}</ul>`
     : ''
   return `
-    <p class="next-time">
-      <time datetime="${escapeHtml(status.departure.time)}">${escapeHtml(status.departure.time)}</time>
-      ${lastTag}
-    </p>
-    <p class="countdown${soon ? ' soon' : ''}">${escapeHtml(formatCountdown(status.secondsUntil))}</p>
-    ${previewList(status.following)}`
+    <button class="show-all" type="button" data-toggle-all aria-expanded="${showAll}">
+      ${showAll ? '閉じる' : 'ほかの便を見る'}<span class="chev">${showAll ? '▾' : '›'}</span>
+    </button>
+    ${list}`
 }
 
 const idleBody = (
@@ -78,59 +127,47 @@ const idleBody = (
     <p class="status-detail">${escapeHtml(detail)}</p>`
 }
 
-// The bus always travels origin (left) → destination (right), so the arrow and
-// animation point right in both cards. Decorative: the card label already names
-// the direction for screen readers.
-const journeyStrip = (origin: Place, destination: Place): string => `
-    <div class="journey" aria-hidden="true">
-      <span class="endpoint">
-        <span class="endpoint-icon">${placeIcon(origin.icon)}</span>
-        <span class="endpoint-name">${escapeHtml(origin.name)}</span>
-      </span>
-      <span class="track">
-        <span class="rail"></span>
-        <span class="bus">${busIcon()}</span>
-      </span>
-      <span class="endpoint">
-        <span class="endpoint-icon">${placeIcon(destination.icon)}</span>
-        <span class="endpoint-name">${escapeHtml(destination.name)}</span>
-      </span>
-    </div>`
-
-const directionCard = (
+const board = (
   now: Date,
   direction: RouteDirection,
   serviceWeekdays: readonly number[],
+  showAll: boolean,
 ): string => {
   const status = directionStatus(now, direction, serviceWeekdays)
-  const body = status.kind === 'running'
-    ? runningBody(status)
-    : idleBody(status)
+  const core = status.kind === 'running' ? runningCore(status) : idleBody(status)
+  const more = status.kind === 'running' ? expander(status, showAll) : ''
 
   return `
-    <article class="card" data-direction="${escapeHtml(direction.id)}">
-      <header class="card-head">
-        <span class="label">${escapeHtml(direction.label)}</span>
-      </header>
+    <section class="board" data-tone="${direction.tone}" data-direction="${escapeHtml(direction.id)}">
+      <h2 class="route-head">
+        ${escapeHtml(direction.origin.name)}<span class="route-arrow">→</span>${escapeHtml(direction.destination.name)}
+      </h2>
+      <span class="tagline">${escapeHtml(direction.tagline)}</span>
+      ${core}
       ${journeyStrip(direction.origin, direction.destination)}
-      ${body}
-    </article>`
+      ${more}
+    </section>`
 }
 
-/** Build the full page markup for a given moment. */
-export function renderTimetable(now: Date, timetable: Timetable): string {
+/** Build the full page markup for a given moment and view state. */
+export function renderTimetable(
+  now: Date,
+  timetable: Timetable,
+  view: ViewState,
+): string {
   const clock = now.toLocaleTimeString('ja-JP', { hour12: false })
-  const cards = timetable.directions
-    .map((direction) => directionCard(now, direction, timetable.serviceWeekdays))
-    .join('')
+  const selected =
+    timetable.directions.find((d) => d.id === view.selectedId) ??
+    timetable.directions[0]
 
   return `
     <main class="app">
       <header class="app-head">
-        <h1>${escapeHtml(timetable.routeName)}</h1>
+        <div class="brand"><span class="brand-bus">${busIcon()}</span>次のバス</div>
         <p class="clock">現在 ${escapeHtml(clock)}</p>
       </header>
-      <section class="cards">${cards}</section>
+      ${tabBar(timetable, selected.id)}
+      ${board(now, selected, timetable.serviceWeekdays, view.showAll)}
       <footer class="app-foot">
         <p>${escapeHtml(timetable.operator)} / ${escapeHtml(timetable.checkedOn)} 時点</p>
         <p class="note">表示はお使いの端末の時計に基づきます。実際の運行は<a href="${escapeHtml(timetable.sourceUrl)}" target="_blank" rel="noopener">事業者の最新案内</a>を確認してください。</p>

@@ -7,8 +7,8 @@ import {
 } from './nextBus.ts'
 import { isServiceDay, nextServiceDate } from './serviceDay.ts'
 
-/** How many subsequent departures to preview while service is running. */
-const PREVIEW_COUNT = 3
+/** How many subsequent departures to keep for the preview / expanded list. */
+const PREVIEW_COUNT = 6
 
 /** Service is running today and a bus is still to come. */
 export interface RunningStatus {

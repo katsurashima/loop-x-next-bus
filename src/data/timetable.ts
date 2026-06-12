@@ -12,6 +12,9 @@
 /** Pictogram kind for an endpoint. Generic glyphs only — never operator logos. */
 export type PlaceIcon = 'station' | 'building'
 
+/** Color theme assigned to a direction to prevent up/down confusion. */
+export type DirectionTone = 'blue' | 'orange'
+
 /** An endpoint of the route (a stop). */
 export interface Place {
   /** Display name, e.g. "田町駅". */
@@ -26,6 +29,10 @@ export interface RouteDirection {
   id: string
   /** Human label shown on the card, e.g. "LOOP-X 行き". */
   label: string
+  /** Plain-language purpose, e.g. "LOOPへ向かう" / "駅へ向かう". */
+  tagline: string
+  /** Color theme for this direction (fixed per direction). */
+  tone: DirectionTone
   /** Where the rider boards. */
   origin: Place
   /** Where the bus is headed. */
@@ -60,6 +67,8 @@ export const TIMETABLE: Timetable = {
     {
       id: 'to-loop-x',
       label: 'LOOP-X 行き',
+      tagline: 'LOOPへ向かう',
+      tone: 'blue',
       origin: { name: '田町駅', icon: 'station' },
       destination: { name: 'LOOP-X', icon: 'building' },
       departures: [
@@ -79,6 +88,8 @@ export const TIMETABLE: Timetable = {
     {
       id: 'to-tamachi',
       label: '田町駅 行き',
+      tagline: '駅へ向かう',
+      tone: 'orange',
       origin: { name: 'LOOP-X', icon: 'building' },
       destination: { name: '田町駅', icon: 'station' },
       departures: [

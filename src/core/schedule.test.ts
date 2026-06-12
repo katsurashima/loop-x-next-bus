@@ -7,6 +7,8 @@ const WEEKDAYS = [1, 2, 3, 4, 5]
 const DIRECTION: RouteDirection = {
   id: 'to-x',
   label: 'X 行き',
+  tagline: 'Xへ向かう',
+  tone: 'blue',
   origin: { name: 'A', icon: 'station' },
   destination: { name: 'X', icon: 'building' },
   departures: ['07:00', '08:00', '09:30', '22:00'],
