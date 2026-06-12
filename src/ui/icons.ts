@@ -1,14 +1,18 @@
 import type { PlaceIcon } from '../data/timetable.ts'
 
-// Inline, self-authored pictograms. They use `currentColor` so they follow the
-// theme (light/dark). These are generic glyphs — never the operator's logo.
+// Inline pictograms using `currentColor` so they follow the theme / direction
+// color. Station + building glyphs are from Material Design Icons
+// (Pictogrammers, Apache-2.0); the bus + arrow are self-authored generic glyphs.
+// None are the operator's logo.
 
-const STATION = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c-4 0-7 .5-7 4v9a3 3 0 0 0 3 3l-2 3h2.3l2-3h3.4l2 3H20l-2-3a3 3 0 0 0 3-3V6c0-3.5-3-4-7-4Zm-5 5h10v4H7V7Zm2.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm6 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/></svg>`
+// mdi:train
+const STATION = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 20.5v.5h2.23l2-2H14l2 2h2v-.5L16.5 19a3.5 3.5 0 0 0 3.5-3.5V6c0-3.5-3.58-4-8-4M7.5 17A1.5 1.5 0 0 1 6 15.5A1.5 1.5 0 0 1 7.5 14A1.5 1.5 0 0 1 9 15.5A1.5 1.5 0 0 1 7.5 17m3.5-7H6V6h5zm2 0V6h5v4zm3.5 7a1.5 1.5 0 0 1-1.5-1.5a1.5 1.5 0 0 1 1.5-1.5a1.5 1.5 0 0 1 1.5 1.5a1.5 1.5 0 0 1-1.5 1.5"/></svg>`
 
-const BUILDING = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 21V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3h7a1 1 0 0 1 1 1v11H3Zm3-3h2v-2H6v2Zm0-4h2v-2H6v2Zm0-4h2V8H6v2Zm4 8h2v-2h-2v2Zm0-4h2v-2h-2v2Zm0-4h2V8h-2v2Zm6 8h2v-2h-2v2Zm0-4h2v-2h-2v2Z"/></svg>`
+// mdi:office-building
+const BUILDING = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3v18h6v-3.5h2V21h6V3zm2 2h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zM7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm8 0h2v2h-2z"/></svg>`
 
-// Side view, facing right (the travel direction along the rail).
-const BUS = `<svg viewBox="0 0 32 20" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M4 3.5A2.5 2.5 0 0 1 6.5 1h15.4c1.6 0 3 .9 3.7 2.3l2.5 5c.3.4.4.8.4 1.2v3.5a2.5 2.5 0 0 1-2.5 2.5h-.6a3.3 3.3 0 0 0-6.4 0h-6.6a3.3 3.3 0 0 0-6.4 0H6.5A2.5 2.5 0 0 1 4 13V3.5ZM7 4.5v3.4h4.2V4.5H7Zm6 0v3.4h4.2V4.5H13Zm6.2 0v3.4h4.6l-1.7-3.4h-2.9Z"/><circle cx="10" cy="16" r="2.2"/><circle cx="22.5" cy="16" r="2.2"/></svg>`
+// mdi:bus (front view) — used as the header mark.
+const BUS = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 11H6V6h12m-1.5 11a1.5 1.5 0 0 1-1.5-1.5a1.5 1.5 0 0 1 1.5-1.5a1.5 1.5 0 0 1 1.5 1.5a1.5 1.5 0 0 1-1.5 1.5m-9 0A1.5 1.5 0 0 1 6 15.5A1.5 1.5 0 0 1 7.5 14A1.5 1.5 0 0 1 9 15.5A1.5 1.5 0 0 1 7.5 17M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4z"/></svg>`
 
 const PLACE_ICON: Record<PlaceIcon, string> = {
   station: STATION,
